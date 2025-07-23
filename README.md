@@ -1,4 +1,6 @@
-# File_Organizer
+# File_Organizer 
+         <img width="1677" height="875" alt="Screenshot 2025-07-23 215032" src="https://github.com/user-attachments/assets/e98e4cb3-6b2d-453a-8a65-77732a7f22f6" />
+
 
 # Project Overview : 
 
@@ -45,7 +47,4 @@
 	 
 ### Web App Interface
 
-          <img width="1677" height="875" alt="Web App Screenshot" src="https://github.com/user-attachments/assets/75147233-a36d-458f-b98c-f72e3ca85792" /> 
-
-
-
+       
