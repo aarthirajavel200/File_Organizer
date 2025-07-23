@@ -37,7 +37,7 @@
 
           shutil module
 	  
-	  Streamlit
+	   Streamlit
 
 # Project Structure
          project-folder/
