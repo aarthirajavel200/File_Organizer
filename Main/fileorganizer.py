@@ -43,9 +43,7 @@ def organize_files(uploaded_files):
 
         return zip_bytes
 
-# -----------------------------
-# Streamlit UI
-# -----------------------------
+
 st.set_page_config(page_title="File Organizer", page_icon="📁")
 st.title("📁 File Organizer")
 
