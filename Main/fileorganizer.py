@@ -5,7 +5,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-# Define file categories
+# File categories
 FILE_CATEGORIES = {
     "Images": [".jpg", ".jpeg", ".png", ".gif"],
     "PDF": [".pdf"],
@@ -25,84 +25,68 @@ FILE_CATEGORIES = {
     "Others": []
 }
 
-def move_file(file_path, base_path, folder_name):
-    target_folder = os.path.join(base_path, folder_name)
-    os.makedirs(target_folder, exist_ok=True)
-    shutil.move(file_path, os.path.join(target_folder, os.path.basename(file_path)))
+def categorize_file(file_name):
+    _, ext = os.path.splitext(file_name)
+    for category, extensions in FILE_CATEGORIES.items():
+        if ext.lower() in extensions:
+            return category
+    return "Others"
 
-def organize_folder(folder_path, status_text):
-    files_moved = {}
-    all_files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
-    total = len(all_files)
-
-    progress_bar = st.progress(0)
-
-    for i, filename in enumerate(all_files):
-        file_path = os.path.join(folder_path, filename)
-        _, extension = os.path.splitext(filename)
-        moved = False
-
-        for category, extensions in FILE_CATEGORIES.items():
-            if extension.lower() in extensions:
-                move_file(file_path, folder_path, category)
-                files_moved.setdefault(category, []).append(filename)
-                moved = True
-                break
-
-        if not moved:
-            move_file(file_path, folder_path, "Others")
-            files_moved.setdefault("Others", []).append(filename)
-
-        status_text.text(f"Organizing: {filename} ({i+1}/{total})")
-        progress_bar.progress((i + 1) / total)
-
-    return files_moved
-
-# Streamlit App
-st.set_page_config(page_title="File Organizer", page_icon="🗂️")
-st.title("📂 Simple File Organizer with Categories")
-
-uploaded_zip = st.file_uploader("Upload a ZIP file containing files to organize", type=["zip"])
-
-if uploaded_zip is not None:
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        zip_path = os.path.join(tmp_dir, "uploaded.zip")
+def organize_uploaded_zip(uploaded_zip):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        zip_path = os.path.join(tmpdir, "uploaded.zip")
         with open(zip_path, "wb") as f:
             f.write(uploaded_zip.getbuffer())
 
-        with zipfile.ZipFile(zip_path, "r") as zip_ref:
-            zip_ref.extractall(tmp_dir)
+        # Extract uploaded zip
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(tmpdir)
 
-        status_text = st.empty()
-        status_text.info("Processing started. Please wait...")
+        organized_dir = os.path.join(tmpdir, "organized")
+        os.makedirs(organized_dir, exist_ok=True)
 
-        result = organize_folder(tmp_dir, status_text)
+        files = [f for f in Path(tmpdir).rglob('*') if f.is_file() and f.name != "uploaded.zip"]
 
-        status_text.success("Files organized successfully.")
+        progress_bar = st.progress(0)
+        status = st.empty()
+
+        for i, file_path in enumerate(files):
+            category = categorize_file(file_path.name)
+            target_folder = os.path.join(organized_dir, category)
+            os.makedirs(target_folder, exist_ok=True)
+            shutil.copy(file_path, os.path.join(target_folder, file_path.name))
+
+            status.text(f"Organizing: {file_path.name} ({i+1}/{len(files)})")
+            progress_bar.progress((i + 1) / len(files))
+
+        # Create new organized zip
+        final_zip_path = os.path.join(tmpdir, "organized_files.zip")
+        with zipfile.ZipFile(final_zip_path, 'w') as zipf:
+            for root, _, files in os.walk(organized_dir):
+                for file in files:
+                    full_path = os.path.join(root, file)
+                    arcname = os.path.relpath(full_path, organized_dir)
+                    zipf.write(full_path, arcname)
+
+        st.success("Files organized successfully!")
         st.balloons()
 
-        # Zip organized folder
-        organized_zip_path = os.path.join(tmp_dir, "organized_files.zip")
-        with zipfile.ZipFile(organized_zip_path, "w") as zf:
-            for root, _, files in os.walk(tmp_dir):
-                for file in files:
-                    if file != "uploaded.zip" and file != "organized_files.zip":
-                        file_path = os.path.join(root, file)
-                        arcname = os.path.relpath(file_path, tmp_dir)
-                        zf.write(file_path, arcname)
+        return final_zip_path
 
+# Streamlit UI
+st.title("📁 File Organizer into ZIP by File Type")
+st.write("Upload a **.zip** file containing your unorganized files. This tool will categorize them and give you a new **organized .zip** file with subfolders for each type.")
+
+uploaded_zip = st.file_uploader("Upload your zip folder here:", type=["zip"])
+
+if uploaded_zip and st.button("Organize Files"):
+    zip_result_path = organize_uploaded_zip(uploaded_zip)
+
+    with open(zip_result_path, "rb") as f:
         st.download_button(
-            label="📥 Download Organized Files as ZIP",
-            data=open(organized_zip_path, "rb"),
+            label="📦 Download Organized ZIP",
+            data=f,
             file_name="organized_files.zip",
             mime="application/zip"
         )
 
-        if result:
-            st.subheader("📊 Summary of Files Moved:")
-            for category, files in result.items():
-                st.write(f"**{category}**: {len(files)} file(s)")
-                for file in files:
-                    st.markdown(f"- {file}")
-        else:
-            st.write("No files were moved.")
