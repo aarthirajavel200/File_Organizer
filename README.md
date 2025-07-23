@@ -31,13 +31,10 @@
 
         5) The files will be moved into subfolders under the same directory.
 # Technologies Used
-          Python 3
-
-          os module
-
-          shutil module
-	  
-	   Streamlit
+         - Python 3
+         - os module
+         - shutil module
+         - Streamlit
 
 # Project Structure
          project-folder/
