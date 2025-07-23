@@ -1,5 +1,5 @@
 # File_Organizer 
-         <img width="1677" height="875" alt="Screenshot 2025-07-23 215032" src="https://github.com/user-attachments/assets/e98e4cb3-6b2d-453a-8a65-77732a7f22f6" />
+        
 
 
 # Project Overview : 
@@ -36,7 +36,7 @@
           os module
 
           shutil module
-
+	  
 	  Streamlit
 
 # Project Structure
