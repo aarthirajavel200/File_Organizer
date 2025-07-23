@@ -57,6 +57,6 @@ if uploaded_files:
             zip_bytes = organize_files(uploaded_files)
             st.balloons()
             st.success("Files organized and zipped successfully!")
-            st.download_button("📦 Download Organized Files", zip_bytes, file_name="organized_files.zip", mime="application/zip")
+            st.download_button(" Download Organized Files", zip_bytes, file_name="organized_files.zip", mime="application/zip")
         except Exception as e:
             st.error(f"An error occurred: {e}")
