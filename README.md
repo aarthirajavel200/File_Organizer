@@ -43,6 +43,8 @@
          │
          ├── file_organizer.py
          ├── README.md
+  ## Screenshots
+         <img width="1677" height="875" alt="image" src="https://github.com/user-attachments/assets/75147233-a36d-458f-b98c-f72e3ca85792" />
 
 
 
