@@ -45,7 +45,7 @@ def organize_files(uploaded_files):
 
 
 st.set_page_config(page_title="File Organizer", page_icon="📁")
-st.title("📁 File Organizer Project  By Aarthi ")
+st.title("📁 File Organizer Project  by raji")
 
 uploaded_files = st.file_uploader("Upload multiple files", accept_multiple_files=True)
 
